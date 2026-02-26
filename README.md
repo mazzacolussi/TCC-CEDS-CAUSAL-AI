@@ -10,13 +10,17 @@ A short description of the project.
 ## Data
 
 For this project, the datasets from [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce?resource=download)
-will be used, including the following relationships between them:
+are used. After downloading the individual datasets, make sure they are placed in the `data/raw/` folder at the root of this project.
+
+The relationships between the datasets are shown below:
 
 <p align="center">
   <a href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce?resource=download">
     <img src="references/figures/datasets-flow.png" width="70%">
   </a>
 </p>
+
+
 
 ## Project Organization
 
