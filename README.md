@@ -48,9 +48,7 @@ python src/app/feature/build_features.py
 │
 ├── models             <- Trained and serialized models, model predictions, or model summaries
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── notebooks          <- Jupyter notebooks.
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
 │                         tcc_causal_ai and configuration for tools like black
@@ -60,7 +58,6 @@ python src/app/feature/build_features.py
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
 │   └── figures        <- Generated graphics and figures to be used in reporting
 │
-│
 ├── setup.cfg          <- Configuration file for flake8
 │
 └── src 
@@ -68,13 +65,19 @@ python src/app/feature/build_features.py
           │
           ├── __init__.py             <- Makes tcc_causal_ai a Python module
           │
-          ├── dataset.py              <- Scripts to download or generate data
+          ├── data                    <- Scripts to download or generate processed data
+          │   ├── basic_process.py 
+          │   └── builders.py
           │
-          └── config                
-              ├── __init__.py 
-              └── settings.py         <- Store useful variables and configuration
-          
-
+          ├── features                <- Scripts to transform data and generate interim data
+          │   └── build_features.py 
+          │
+          ├── config                
+          │   ├── __init__.py 
+          │   └── settings.py         <- Store useful variables and configuration
+          │
+          └── utils                   <- Classes and functions to transform data
+              └── transformers.py     
 ```
 
 --------
