@@ -27,6 +27,12 @@ To generate a unified and preprocessed dataset at the `order_id` and `customer_i
 python src/app/data/basic_process.py
 ```
 
+Finally, to generate the final dataset for the modeling stage, ensuring that the previous steps were successfully completed, run:
+
+```bash
+python src/app/feature/build_features.py
+```
+
 ## Project Organization
 
 ```
@@ -34,7 +40,6 @@ python src/app/data/basic_process.py
 ├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
-│   ├── external       <- Data from third party sources.
 │   ├── interim        <- Intermediate data that has been transformed.
 │   ├── processed      <- The final, canonical data sets for modeling.
 │   └── raw            <- The original, immutable data dump.
@@ -65,16 +70,11 @@ python src/app/data/basic_process.py
           │
           ├── dataset.py              <- Scripts to download or generate data
           │
-          ├── config                
-          │   ├── __init__.py 
-          │   └── settings.py         <- Store useful variables and configuration
-          │
-          ├── modeling                
-          │   ├── __init__.py 
-          │   ├── predict.py          <- Code to run model inference with trained models          
-          │   └── train.py            <- Code to train models
-          │
-          └── plots.py                <- Code to create visualizations
+          └── config                
+              ├── __init__.py 
+              └── settings.py         <- Store useful variables and configuration
+          
+
 ```
 
 --------
