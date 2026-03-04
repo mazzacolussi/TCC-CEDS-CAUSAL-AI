@@ -1,29 +1,59 @@
-from pathlib import Path
+import os
+import pandas as pd
+import logging
 
-from loguru import logger
-from tqdm import tqdm
-import typer
+from app.config.settings import RAW_DATA_DIR, PROCESSED_DATA_DIR
+from app.data.builders import (
+    build_customers_dataset,
+    build_order_items_dataset,
+    build_payments_dataset
+)
 
-from app.config.settings import PROCESSED_DATA_DIR, RAW_DATA_DIR
+import warnings
+warnings.filterwarnings('ignore')
 
-app = typer.Typer()
+def main():
+
+    logger = logging.getLogger(__name__)
+    logger.info("Starting dataset consolidation and processing.")
+
+    datasets = {}
+
+    for file in os.listdir(RAW_DATA_DIR):
+        if file.endswith(".csv"):
+            file_path = os.path.join(RAW_DATA_DIR, file)
+            datasets[file.replace(".csv", "")] = pd.read_csv(file_path)
+        elif file.endswith(".parquet"):
+            file_path = os.path.join(RAW_DATA_DIR, file)
+            datasets[file.replace(".parquet", "")] = pd.read_parquet(file_path)
+
+    customers = build_customers_dataset(datasets, logger)
+    order_items = build_order_items_dataset(datasets, logger)
+    payments = build_payments_dataset(datasets, logger)
+
+    logger.info("Merging processed tables into final dataset.")
+
+    df = datasets["olist_orders_dataset"].copy()
+    before_rows = df.shape[0]
+
+    df = df.merge(customers, on = "customer_id", how = "left")
+    df = df.merge(order_items, on = "order_id", how = "left")
+    df = df.merge(payments, on = "order_id", how = "left")
+
+    logger.info("Final dataset created (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
+
+    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
+    output_path = os.path.join(PROCESSED_DATA_DIR, "processed_dataset.parquet")
+
+    logger.info("Saving processed dataset to: %s", output_path)
+    df.to_parquet(output_path)
+
+    logger.info("Dataset processing completed successfully.")
 
 
-@app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = RAW_DATA_DIR / "dataset.csv",
-    output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
-    # ----------------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Processing dataset...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Processing dataset complete.")
-    # -----------------------------------------
+if __name__ == '__main__':
 
+    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
 
-if __name__ == "__main__":
-    app()
+    main()

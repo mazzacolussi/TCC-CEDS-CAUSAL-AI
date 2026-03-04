@@ -21,6 +21,11 @@ The relationships between the datasets are shown below:
 </p>
 
 
+To generate a unified and preprocessed dataset at the `order_id` and `customer_id` level, execute the following command:
+
+```bash
+python src/app/dataset.py
+```
 
 ## Project Organization
 
