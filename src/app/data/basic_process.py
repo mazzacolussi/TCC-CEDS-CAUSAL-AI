@@ -40,7 +40,12 @@ def main():
     df = df.merge(order_items, on = "order_id", how = "left")
     df = df.merge(payments, on = "order_id", how = "left")
 
-    logger.info("Final dataset created (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
+    logger.info("Dataset created (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
+
+    before_rows = df.shape[0]
+    df = df[df["order_status"].isin(["delivered", "canceled", "unavailable"])]
+
+    logger.info("Filtering samples only with 'delivered', 'canceled', or 'unavailable' order status (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
 
     os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
     output_path = os.path.join(PROCESSED_DATA_DIR, "processed_dataset.parquet")

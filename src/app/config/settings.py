@@ -16,5 +16,5 @@ INTERIM_DATA_DIR = DATA_DIR / "interim"
 date_cols = [
     "order_purchase_timestamp",
     "order_delivered_customer_date",
-    "order_estimated_delivery_date"
+    "order_estimated_delivery_date" 
 ]

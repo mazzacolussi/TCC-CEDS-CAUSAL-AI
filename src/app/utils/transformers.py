@@ -23,20 +23,24 @@ class BuildFeatures(BaseEstimator, TransformerMixin):
 
     def build_features(self, X):
         def apply_features(X: pd.DataFrame) -> pd.DataFrame:
+            
+            # Outcome: Order Sucess Rate (OSR)
+            X["OSR"] = (X["order_status"] == "delivered").astype(int)
+
             X["installment_value"] = X["total_payment"] / X["max_installments"]
 
             for col in date_cols:
                 X[col] = pd.to_datetime(X[col], errors="coerce")
 
-            # Tempo de entrega real
-            X["delivery_time_days"] = (
-                X["order_delivered_customer_date"] - X["order_purchase_timestamp"]
-            ).dt.days
+            # Tempo de entrega real (pós fato)
+            # X["delivery_time_days"] = (
+            #     X["order_delivered_customer_date"] - X["order_purchase_timestamp"]
+            # ).dt.days
 
-            # Atraso na entrega
-            X["delay_days"] = (
-                X["order_delivered_customer_date"] - X["order_estimated_delivery_date"]
-            ).dt.days
+            # # Atraso na entrega (pós fato)
+            # X["delay_days"] = (
+            #     X["order_delivered_customer_date"] - X["order_estimated_delivery_date"]
+            # ).dt.days
 
             # Features temporais
             X["purchase_hour"] = X["order_purchase_timestamp"].dt.hour

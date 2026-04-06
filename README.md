@@ -30,7 +30,7 @@ python src/app/data/basic_process.py
 Finally, to generate the final dataset for the modeling stage, ensuring that the previous steps were successfully completed, run:
 
 ```bash
-python src/app/feature/build_features.py
+python src/app/features/build_features.py
 ```
 
 ## Project Organization
