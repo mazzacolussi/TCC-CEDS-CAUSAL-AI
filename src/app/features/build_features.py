@@ -21,6 +21,10 @@ def main():
     df = build_features.transform(df)
     logger.info(f'Success! Processing finished. Processed dataset shape: {df.shape}.')
 
+    logger.info('Dropping unnecessary columns.')
+    df = df.drop(columns=['customer_unique_id', 'geolocation_lat', 'geolocation_lng', 'customer_zip_code_prefix'])
+    logger.info(f'Success! Shape: {df.shape}.')
+
 
     logger.info(f"Saving interim dataset.")
     os.makedirs(INTERIM_DATA_DIR, exist_ok=True)

@@ -6,7 +6,8 @@ from app.config.settings import RAW_DATA_DIR, PROCESSED_DATA_DIR
 from app.data.builders import (
     build_customers_dataset,
     build_order_items_dataset,
-    build_payments_dataset
+    build_payments_dataset,
+    build_reviews_dataset
 )
 
 import warnings
@@ -30,6 +31,7 @@ def main():
     customers = build_customers_dataset(datasets, logger)
     order_items = build_order_items_dataset(datasets, logger)
     payments = build_payments_dataset(datasets, logger)
+    reviews = build_reviews_dataset(datasets, logger)
 
     logger.info("Merging processed tables into final dataset.")
 
@@ -39,13 +41,14 @@ def main():
     df = df.merge(customers, on = "customer_id", how = "left")
     df = df.merge(order_items, on = "order_id", how = "left")
     df = df.merge(payments, on = "order_id", how = "left")
+    df = df.merge(reviews, on = "order_id", how = "left")
 
     logger.info("Dataset created (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
 
     before_rows = df.shape[0]
-    df = df[df["order_status"].isin(["delivered", "canceled", "unavailable"])]
+    df = df[(df["order_status"] == "delivered") & (df["review_score"].notna())]
 
-    logger.info("Filtering samples only with 'delivered', 'canceled', or 'unavailable' order status (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
+    logger.info("Filtering samples only with 'delivered' order status (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
 
     os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
     output_path = os.path.join(PROCESSED_DATA_DIR, "processed_dataset.parquet")
