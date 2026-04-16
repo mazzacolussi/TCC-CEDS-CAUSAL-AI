@@ -109,3 +109,28 @@ def build_payments_dataset(
     )
 
     return payments_agg
+
+
+def build_reviews_dataset(
+    datasets: Dict[str, pd.DataFrame], 
+    logger: logging.Logger
+) -> pd.DataFrame:
+    """Create order-level review scores aggregates."""
+    logger.info('Building review scores aggregates (order-level).')
+
+    reviews_agg = (
+        datasets['olist_order_reviews_dataset']
+        .groupby("order_id")
+        .agg({
+            "review_score": "mean"
+        })
+        .reset_index()
+    )
+
+
+    logger.info(
+        'Reviews aggregates ready (rows = %d, cols = %d).', 
+        reviews_agg.shape[0], reviews_agg.shape[1]
+    )
+
+    return reviews_agg
