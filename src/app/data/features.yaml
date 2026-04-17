@@ -20,6 +20,11 @@ order_delivered_customer_date:
 
 order_estimated_delivery_date:
   type: datetime
+  support: true
+
+customer_state:
+  type: string
+  support: true
 
 total_price:
   type: float
@@ -53,7 +58,7 @@ avg_weight:
   type: float
   confounder: true
 
-avg_lenght:
+avg_length:
   type: float
   confounder: true
 
@@ -73,7 +78,7 @@ avg_payment:
   type: float
   confounder: true
 
-n_payment:
+n_payments_type:
   type: int
   confounder: true
 
@@ -81,10 +86,10 @@ n_payment:
 ####### Features construídas ######
 ###################################
 
-installment_value:
-  type: float
-  build_feature: true
-  confounder: true
+# installment_value:
+#   type: float
+#   build_feature: true
+#   confounder: true
 
 is_delayed:
   type: int

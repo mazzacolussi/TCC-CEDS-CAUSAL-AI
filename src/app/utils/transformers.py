@@ -22,7 +22,7 @@ class BuildFeatures(BaseEstimator, TransformerMixin):
     def build_features(self, X):
         def apply_features(X: pd.DataFrame) -> pd.DataFrame:
 
-            X["installment_value"] = X["total_payment"] / X["max_installments"]
+            # X["installment_value"] = X["total_payment"] / X["max_installments"]
 
             for col in date_cols:
                 X[col] = pd.to_datetime(X[col], errors="coerce")

@@ -1,39 +1,39 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
+
 def preprocess(
-        df, 
-        treatment, 
-        outcome, 
-        confundidores
-    ):
-    df_out = df[confundidores + [treatment, outcome]].dropna().copy()
+    df: pd.DataFrame,
+    confounders: list[str],
+    treatment: str,
+    outcome: str,
+) -> pd.DataFrame:
+    
+    cols = confounders + [treatment, outcome]
+    df_out = df[cols].dropna().copy()
+    cols_num = df_out[confounders].select_dtypes(include='number').columns.tolist()
 
-    le = LabelEncoder()
-    df_out['customer_state'] = le.fit_transform(df_out['customer_state'])
-
-    continuous_cols = [c for c in confundidores if c != 'customer_state']
-    scaler = StandardScaler()
-    df_out[continuous_cols] = scaler.fit_transform(
-        df_out[continuous_cols]
-    )
+    if cols_num:
+        scaler = StandardScaler()
+        df_out[cols_num] = scaler.fit_transform(df_out[cols_num])
 
     return df_out
 
 
+
 def compute_iptw_weights(
-        df_model, 
-        treatment, 
-        confundidores,
-        stabilized = True, 
-        trim_percentile = 99
+        df: pd.DataFrame, 
+        confounders: list[str],
+        treatment: str, 
+        stabilized: bool = True, 
+        trim_percentile: int = 99
     ):
 
-    X = df_model[confundidores].values
-    T = df_model[treatment].values
+    X = df[confounders].values
+    T = df[treatment].values
 
     clf = LogisticRegression(max_iter=1000, random_state=42)
     clf.fit(X, T)
@@ -41,8 +41,7 @@ def compute_iptw_weights(
     ps = clf.predict_proba(X)[:, 1]
     ps = np.clip(ps, 0.01, 0.99)
     
-    auc = roc_auc_score(T, ps)
-    
+    auc_score = roc_auc_score(T, ps)
     p_treated = T.mean()
     
     weights = np.where(
@@ -52,29 +51,28 @@ def compute_iptw_weights(
     if trim_percentile is not None:
         weights = np.clip(weights, None, np.percentile(weights, trim_percentile))
     
-    return ps, weights, auc
-
+    return ps, weights, auc_score
 
 
 def compute_smd(
         df_model, 
+        confounders,
         treatment, 
-        confundidores, 
         weights = None
     ):
 
     smds = {}
     T = df_model[treatment].values
 
-    for col in confundidores:
+    for col in confounders:
 
         x = df_model[col].values
         
         if weights is not None:
             mean1 = np.average(x[T == 1], weights=weights[T == 1])
             mean0 = np.average(x[T == 0], weights=weights[T == 0])
-            var1  = np.average((x[T == 1] - mean1)**2, weights=weights[T == 1])
-            var0  = np.average((x[T == 0] - mean0)**2, weights=weights[T == 0])
+            var1 = np.average((x[T == 1] - mean1)**2, weights=weights[T == 1])
+            var0 = np.average((x[T == 0] - mean0)**2, weights=weights[T == 0])
 
         else:
             mean1, var1 = x[T == 1].mean(), x[T == 1].var()
@@ -86,10 +84,10 @@ def compute_smd(
     return pd.Series(smds)
 
 
-def ate_iptw(df_model, treatment, outcome, weights):
+def ate_iptw(df, treatment, outcome, weights):
 
-    T = df_model[treatment].values
-    Y = df_model[outcome].values
+    T = df[treatment].values
+    Y = df[outcome].values
     
     return (
         np.average(Y[T == 1], weights=weights[T == 1]) -
@@ -98,25 +96,25 @@ def ate_iptw(df_model, treatment, outcome, weights):
 
 
 def bootstrap_ci(
-        df_model, 
+        df, 
+        confounders,
         treatment, 
         outcome, 
-        confundidores,
         n_bootstrap = 200, 
         alpha = 0.05, 
         trim_percentile = 99
     ):
 
     ates = []
-    n = len(df_model)
+    n = len(df)
 
     for _ in range(n_bootstrap):
 
-        sample = df_model.sample(n=n, replace=True)
+        sample = df.sample(n=n, replace=True)
         _, w, _ = compute_iptw_weights(
             sample, 
+            confounders,
             treatment, 
-            confundidores,
             trim_percentile=trim_percentile
         )
         ates.append(ate_iptw(sample, treatment, outcome, w))
