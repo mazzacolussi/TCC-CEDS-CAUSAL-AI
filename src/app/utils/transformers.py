@@ -25,7 +25,7 @@ class BuildFeatures(BaseEstimator, TransformerMixin):
         def apply_features(X: pd.DataFrame) -> pd.DataFrame:
             
             # Outcome
-            X["review_score_outcome"] = (X["review_score"] >= 4).astype(int)
+            X["review_score_outcome"] = (X["review_score"] <= 2).astype(int)
 
             X["installment_value"] = X["total_payment"] / X["max_installments"]
 

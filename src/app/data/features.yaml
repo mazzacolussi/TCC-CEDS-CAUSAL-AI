@@ -1,0 +1,114 @@
+order_id:
+  type: string
+  support: true
+
+customer_id:
+  type: string
+  support: true
+
+order_status:
+  type: string
+  support: true
+
+order_purchase_timestamp:
+  type: datetime
+  support: true
+
+order_delivered_customer_datetime:
+  type: datetime
+  support: true
+
+order_estimated_date_datetime:
+  type: datetime
+
+total_price:
+  type: float
+  confounder: true
+    
+avg_price:
+  type: float
+  confounder: true
+
+total_freight:
+  type: float
+  confounder: true
+
+avg_freight:
+  type: float
+  confounder: true
+
+n_items:
+  type: int
+  confounder: true
+
+n_items_missing_info:
+  type: int
+  confounder: true
+
+n_item_distinct_categ:
+  type: int
+  confounder: true
+
+avg_weight:
+  type: float
+  confounder: true
+
+avg_lenght:
+  type: float
+  confounder: true
+
+avg_height:
+  type: float
+  confounder: true
+
+avg_width:
+  type: float
+  confounder: true
+
+total_payment:
+  type: float
+  confounder: true
+
+avg_payment:
+  type: float
+  confounder: true
+
+n_payment:
+  type: int
+  confounder: true
+
+###################################
+####### Features construídas ######
+###################################
+
+installment_value:
+  type: float
+  build_feature: true
+  confounder: true
+
+is_delayed:
+  type: int
+  build_feature: true
+  treatment: true
+
+purchase_weekday:
+  type: int
+  build_feature: true
+  confounder: true
+
+purchase_month:
+  type: int
+  build_feature: true
+  confounder: true
+
+###################################
+############# Target ##############
+###################################
+
+review_score:
+  type: int
+  support: true
+
+review_score_outcome:
+  type: int
+  target: true

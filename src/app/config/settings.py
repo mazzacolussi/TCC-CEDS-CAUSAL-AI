@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Paths
-PROJ_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_DIR = Path(__file__).resolve().parents[3]
 
-DATA_DIR = PROJ_ROOT / "data"
+DATA_DIR = PROJECT_DIR / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
