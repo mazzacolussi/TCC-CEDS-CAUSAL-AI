@@ -47,6 +47,7 @@ def main():
 
     before_rows = df.shape[0]
     df = df[(df["order_status"] == "delivered") & (df["review_score"].notna())]
+    df['review_score_outcome'] = (df['review_score'] <= 2).astype(int)
 
     logger.info("Filtering samples only with 'delivered' order status (rows = %d -> %d, cols = %d).", before_rows, df.shape[0], df.shape[1])
 

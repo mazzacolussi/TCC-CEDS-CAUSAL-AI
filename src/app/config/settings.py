@@ -1,5 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
+from app.data import get_features
+from app.data.utils import find_specific_variables
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -13,8 +15,8 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 
 # Useful variables
-date_cols = [
-    "order_purchase_timestamp",
-    "order_delivered_customer_date",
-    "order_estimated_delivery_date" 
-]
+date_cols = find_specific_variables(
+    get_features('features.yaml'), 
+    "type", 
+    specific_value = 'datetime'
+)

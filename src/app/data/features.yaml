@@ -14,11 +14,11 @@ order_purchase_timestamp:
   type: datetime
   support: true
 
-order_delivered_customer_datetime:
+order_delivered_customer_date:
   type: datetime
   support: true
 
-order_estimated_date_datetime:
+order_estimated_delivery_date:
   type: datetime
 
 total_price:
@@ -88,6 +88,7 @@ installment_value:
 
 is_delayed:
   type: int
+  flag: true
   build_feature: true
   treatment: true
 
@@ -107,8 +108,9 @@ purchase_month:
 
 review_score:
   type: int
+  raw_outcome: true
   support: true
 
 review_score_outcome:
   type: int
-  target: true
+  outcome: true

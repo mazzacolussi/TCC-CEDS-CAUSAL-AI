@@ -122,7 +122,7 @@ def build_reviews_dataset(
         datasets['olist_order_reviews_dataset']
         .groupby("order_id")
         .agg({
-            "review_score": "mean"
+            "review_score": "min"
         })
         .reset_index()
     )
