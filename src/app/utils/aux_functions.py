@@ -23,6 +23,28 @@ def preprocess(
     return df_out
 
 
+def build_gml(confounders, treatment, outcome):
+
+    nodes = list(set(confounders + [treatment, outcome]))
+
+    edges = (
+        [(c, treatment) for c in confounders] +
+        [(c, outcome) for c in confounders] +
+        [(treatment, outcome)]
+    )
+
+    lines = ['graph [directed 1']
+
+    for n in nodes:
+        lines.append(f'node [id "{n}" label "{n}"]')
+
+    for u, v in edges:
+        lines.append(f'edge [source "{u}" target "{v}"]')
+
+    lines.append(']')
+
+    return '\n'.join(lines)
+
 
 def compute_iptw_weights(
         df: pd.DataFrame, 
@@ -51,7 +73,7 @@ def compute_iptw_weights(
     if trim_percentile is not None:
         weights = np.clip(weights, None, np.percentile(weights, trim_percentile))
     
-    return ps, weights, auc_score
+    return clf, ps, weights, auc_score
 
 
 def compute_smd(
@@ -111,7 +133,7 @@ def bootstrap_ci(
     for _ in range(n_bootstrap):
 
         sample = df.sample(n=n, replace=True)
-        _, w, _ = compute_iptw_weights(
+        _, _, w, _ = compute_iptw_weights(
             sample, 
             confounders,
             treatment, 
