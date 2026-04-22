@@ -145,3 +145,35 @@ def bootstrap_ci(
     upper = np.percentile(ates, 100 * (1 - alpha / 2))
     
     return lower, upper, np.array(ates)
+
+
+def ate_subgrupo(df, treatment, outcome, weights, mask, nome):
+
+    sub = df[mask].copy()
+
+    T = sub[treatment].values
+    Y = sub[outcome].values
+    W = weights[mask]
+
+    n_tratados = int((T == 1).sum())
+    n_controle = int((T == 0).sum())
+
+    if n_tratados == 0 or n_controle == 0:
+        return {
+            'Subgrupo': nome,
+            'ATE (p.p.)': np.nan,
+            'N tratados': n_tratados,
+            'N controle': n_controle
+        }
+
+    ate = (
+        np.average(Y[T == 1], weights=W[T == 1]) -
+        np.average(Y[T == 0], weights=W[T == 0])
+    )
+
+    return {
+        'Subgrupo': nome,
+        'ATE (p.p.)': round(ate * 100, 2),
+        'N tratados': n_tratados,
+        'N controle': n_controle
+    }
