@@ -4,7 +4,23 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-A short description of the project.
+This repository contains the code, notebooks, and materials developed for the final postgraduate project (TCC) of Andreza Alves de Oliveira and Leonardo Mazzamboni Colussi in the Data Science specialization program at ITA (Instituto Tecnológico de Aeronáutica).
+
+The project investigates how **Causal AI** methods can be applied to estimate the causal impact of operational variables in an e-commerce marketplace using observational data from the public **Olist Brazilian E-Commerce Dataset**. The main research question focuses on understanding whether delivery delays causally affect customer satisfaction, measured through order review scores.
+
+To address this problem, the project combines modern causal inference techniques such as:
+
+- Directed Acyclic Graphs (DAGs)
+- Backdoor adjustment
+- Propensity Score Weighting (IPTW)
+- Average Treatment Effect (ATE) estimation
+- Regression Discontinuity Design (RDD)
+- Sensitivity Analysis (E-value)
+- Heterogeneous Treatment Effects (CATE)
+
+The repository also includes exploratory data analysis, feature engineering pipelines, robustness checks, counterfactual business simulations, and presentation materials.
+
+This work aims to bridge the gap between traditional predictive analytics and decision-oriented causal modeling in real-world marketplace operations.
 
 
 ## Data
