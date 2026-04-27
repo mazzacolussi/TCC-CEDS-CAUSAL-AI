@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import OrdinalEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
@@ -11,6 +11,29 @@ def preprocess(
     treatment: str,
     outcome: str,
 ) -> pd.DataFrame:
+    """
+    Preprocess the dataset for causal modeling.
+
+    Selects the required columns (confounders, treatment, and outcome),
+    removes rows with missing values, and standardizes numeric variables
+    using StandardScaler.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Original dataset.
+    confounders : list[str]
+        List of observed confounding variables.
+    treatment : str
+        Name of the treatment variable.
+    outcome : str
+        Name of the outcome variable.
+
+    Returns
+    -------
+    pd.DataFrame
+        Cleaned and scaled dataset ready for causal estimation.
+    """
     
     cols = confounders + [treatment, outcome]
     df_out = df[cols].dropna().copy()
@@ -32,7 +55,26 @@ def build_gml(confounders, treatment, outcome):
         [(c, outcome) for c in confounders] +
         [(treatment, outcome)]
     )
+    """
+    Build a DAG representation in GML format.
 
+    Assumes that all confounders affect both treatment and outcome,
+    and includes a direct causal edge from treatment to outcome.
+
+    Parameters
+    ----------
+    confounders : list[str]
+        List of observed confounders.
+    treatment : str
+        Name of the treatment variable.
+    outcome : str
+        Name of the outcome variable.
+
+    Returns
+    -------
+    str
+        DAG encoded as a GML string.
+    """
     lines = ['graph [directed 1']
 
     for n in nodes:
@@ -53,6 +95,31 @@ def compute_iptw_weights(
         stabilized: bool = True, 
         trim_percentile: int = 99
     ):
+    """
+    Estimate propensity scores and compute IPTW weights.
+
+    Fits a logistic regression model for treatment assignment,
+    computes stabilized inverse probability weights, and optionally
+    trims extreme values.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Modeling dataset.
+    confounders : list[str]
+        Variables used in the propensity score model.
+    treatment : str
+        Binary treatment variable.
+    stabilized : bool, default=True
+        Whether to compute stabilized weights.
+    trim_percentile : int, default=99
+        Upper percentile used to trim extreme weights.
+
+    Returns
+    -------
+    tuple
+        (fitted_model, propensity_scores, weights, auc_roc)
+    """
 
     X = df[confounders].values
     T = df[treatment].values
@@ -82,6 +149,28 @@ def compute_smd(
         treatment, 
         weights = None
     ):
+    """
+    Compute Standardized Mean Differences (SMD).
+
+    Measures covariate imbalance between treated and control groups
+    before or after weighting.
+
+    Parameters
+    ----------
+    df_model : pd.DataFrame
+        Analysis dataset.
+    confounders : list[str]
+        List of confounding variables.
+    treatment : str
+        Treatment variable.
+    weights : array-like, optional
+        IPTW weights. If None, computes unweighted SMD.
+
+    Returns
+    -------
+    pd.Series
+        SMD value for each confounder.
+    """
 
     smds = {}
     T = df_model[treatment].values
@@ -107,6 +196,28 @@ def compute_smd(
 
 
 def ate_iptw(df, treatment, outcome, weights):
+    """
+    Estimate the Average Treatment Effect (ATE) using IPTW.
+
+    Computes the weighted mean difference in outcome
+    between treated and control groups.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Analysis dataset.
+    treatment : str
+        Binary treatment variable.
+    outcome : str
+        Outcome variable.
+    weights : array-like
+        IPTW weights.
+
+    Returns
+    -------
+    float
+        Estimated ATE.
+    """
 
     T = df[treatment].values
     Y = df[outcome].values
@@ -126,7 +237,34 @@ def bootstrap_ci(
         alpha = 0.05, 
         trim_percentile = 99
     ):
+    """
+    Compute bootstrap confidence intervals for the ATE.
 
+    Resamples the dataset with replacement, re-estimates IPTW weights,
+    and recalculates the ATE in each bootstrap iteration.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Analysis dataset.
+    confounders : list[str]
+        Adjustment variables.
+    treatment : str
+        Treatment variable.
+    outcome : str
+        Outcome variable.
+    n_bootstrap : int, default=200
+        Number of bootstrap replications.
+    alpha : float, default=0.05
+        Significance level.
+    trim_percentile : int, default=99
+        Upper percentile used to trim extreme weights.
+
+    Returns
+    -------
+    tuple
+        (lower_bound, upper_bound, ate_samples)
+    """
     ates = []
     n = len(df)
 
@@ -148,6 +286,32 @@ def bootstrap_ci(
 
 
 def ate_subgrupo(df, treatment, outcome, weights, mask, nome):
+    """
+    Estimate subgroup-specific weighted ATE.
+
+    Used for heterogeneous treatment effect analysis (approximate CATE).
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Full dataset.
+    treatment : str
+        Treatment variable.
+    outcome : str
+        Outcome variable.
+    weights : array-like
+        Global IPTW weights.
+    mask : array-like of bool
+        Boolean mask defining the subgroup.
+    nome : str
+        Subgroup name.
+
+    Returns
+    -------
+    dict
+        Dictionary containing subgroup name, estimated ATE,
+        and treated/control sample sizes.
+    """
 
     sub = df[mask].copy()
 
